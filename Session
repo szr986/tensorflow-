@@ -1,0 +1,21 @@
+import tensorflow as tf
+import numpy as np
+
+matrix1 = tf.constant([[3,3]])
+matrix2 = tf.constant([[2,2]])
+product = np.dot(matrix1,matrix2)
+# martix multiply np.dot(m1,m2)
+#method 1
+
+##sess = tf.Session()
+##result = sess.run(product)
+##print(result)
+##sess.close()
+
+#method 2
+with tf.compat.v1.Session() as sess:
+    result2=sess.run(product)
+    print(result2)
+    #with语句里面的自动close
+
+##新版tensorflow好像必须这么写tf.compat.v1.Session(），sess = tf.Session()这么写会发出警告
