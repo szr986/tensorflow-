@@ -1,0 +1,38 @@
+import tensorflow as tf
+import numpy as np
+
+def add_layer(inputs,in_size,out_size,activation_function=None):
+    Weights=tf.Variable(tf.random_normal([in_size,out_size])) #矩阵
+    biaes=tf.Variable(tf.zeros([1,out_size])+0.1) #类似列表，1行，out_size这么多列,值全为0.1
+    Wx_plus_b=tf.matmul(inputs,Weights)+biaes
+    if activation_function is None:
+        outputs=Wx_plus_b
+    else:
+        outputs=activation_function(Wx_plus_b)
+    return outputs
+
+x_data=np.linspace(-1,1,300)[:,np.newaxis]  #-1到1有300个单位，后面是维度，300行
+noise = np.random.normal(0,0.05,x_data.shape) #加入噪点，让他更像真实数据
+y_data=np.square(x_data)-0.5+noise  #square 二次方
+xs=tf.placeholder(tf.float32,[None,1])
+ys=tf.placeholder(tf.float32,[None,1])
+
+l1=add_layer(xs,1,10,activation_function=tf.nn.relu)
+prediction=add_layer(l1,10,1,activation_function=None)
+
+
+loss=tf.reduce_mean(tf.reduce_sum(tf.square(ys-prediction),
+                   reduction_indices=1))
+#reduce_sum求和，对每一个例子的差值,reduce_mean求平均值
+#redection_indeces=1为 第一维对应位置相加
+
+train_step=tf.train.GradientDescentOptimizer(0.1).minimize(loss) #参数为学习效率,minimize来减小误差
+
+init=tf.initialize_all_variables() #记得加括号，不然会出现莫名错误···
+sess=tf.Session()
+sess.run(init)
+
+for i in range(1000):
+    sess.run(train_step,feed_dict={xs:x_data,ys:y_data})
+    if i%50==0:
+        print(sess.run(loss,feed_dict={xs:x_data,ys:y_data}))
